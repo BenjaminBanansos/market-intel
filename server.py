@@ -424,6 +424,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self.serve_static(path)
 
 if __name__ == '__main__':
-    with http.server.ThreadingHTTPServer(('', PORT), Handler) as srv:
-        print(f'Market Intel on http://localhost:{PORT}')
+    import sys
+    print(f'Python {sys.version}', flush=True)
+    print(f'PORT={PORT}  PUBLIC={PUBLIC}', flush=True)
+    print(f'Public dir exists: {os.path.isdir(PUBLIC)}', flush=True)
+    with http.server.ThreadingHTTPServer(('0.0.0.0', PORT), Handler) as srv:
+        print(f'Market Intel listening on 0.0.0.0:{PORT}', flush=True)
         srv.serve_forever()
