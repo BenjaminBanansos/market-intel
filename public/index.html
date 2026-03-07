@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Intel — Social Media Scanner</title>
+  <script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg0: #0b0f18; --bg1: #111827; --bg2: #1c2333; --bg3: #242d3d;
+      --border: #2a3347; --border-light: #374357;
+      --text1: #e2e8f4; --text2: #8b9ab0; --text3: #5a6880;
+      --blue: #4f8ef7; --blue-dim: #1a2d52; --blue-glow: rgba(79,142,247,.15);
+      --green: #34d399; --green-dim: #0d2e22;
+      --red: #f87171;   --red-dim: #2d1515;
+      --yellow: #fbbf24; --yellow-dim: #2d2107;
+      --purple: #a78bfa; --purple-dim: #1e1a3a;
+      --mono: 'JetBrains Mono','Fira Code',monospace;
+      --sans: 'Inter',-apple-system,sans-serif;
+      --r: 6px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:14px} body{font-family:var(--sans);background:var(--bg0);color:var(--text1);min-height:100vh;overflow-x:hidden}
+    a{text-decoration:none;color:inherit} button{font-family:var(--sans);cursor:pointer}
+
+    /* ── Header ── */
+    .header{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;height:56px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+    .logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--blue);white-space:nowrap;flex-shrink:0}
+    .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .search-wrap{flex:1;display:flex;gap:8px;max-width:680px}
+    .search-input{flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text1);padding:8px 14px;border-radius:var(--r);font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
+    .search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-glow)}
+    .search-input::placeholder{color:var(--text3)}
+    .btn-search{background:var(--blue);color:#fff;border:none;padding:8px 18px;border-radius:var(--r);font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;transition:opacity .2s,transform .1s;white-space:nowrap}
+    .btn-search:hover{opacity:.88} .btn-search:active{transform:scale(.97)} .btn-search:disabled{opacity:.45;cursor:default}
+    .header-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+    .api-pill{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);padding:4px 10px;border-radius:20px;white-space:nowrap}
+    .api-pill-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+    .api-pill-dot.warn{background:var(--yellow)}
+    .btn-icon{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:var(--r);font-size:13px;transition:all .2s}
+    .btn-icon:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-dim)}
+
+    /* ── Presets ── */
+    .presets-bar{background:var(--bg1);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+    .presets-bar::-webkit-scrollbar{display:none}
+    .preset{background:var(--bg2);border:1px solid var(--border);color:var(--text2);padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;transition:all .2s}
+    .preset:hover,.preset.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
+
+    /* ── Price Chart section ── */
+    .chart-section{background:var(--bg1);border-bottom:2px solid var(--border);display:none}
+    .chart-header{padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+    .chart-symbol{font-size:14px;font-weight:700;color:var(--text2)}
+    .chart-name{font-size:12px;color:var(--text3)}
+    .chart-price{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--text1)}
+    .chart-change{font-size:13px;font-weight:600;font-family:var(--mono);padding:3px 10px;border-radius:4px}
+    .chart-change.up{background:var(--green-dim);color:var(--green)}
+    .chart-change.down{background:var(--red-dim);color:var(--red)}
+    .chart-range-wrap{margin-left:auto;display:flex;gap:4px}
+    .chart-range-btn{background:none;border:1px solid var(--border);color:var(--text2);padding:4px 10px;border-radius:var(--r);font-size:11px;transition:all .2s}
+    .chart-range-btn:hover{border-color:var(--blue);color:var(--blue)}
+    .chart-range-btn.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue);font-weight:600}
+    .btn-close-chart{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:0;line-height:1;margin-left:6px}
+    .btn-close-chart:hover{color:var(--text1)}
+    #tvChart{height:280px;width:100%}
+
+    /* ── Key events (spike/dip table) ── */
+    .events-strip{display:flex;gap:8px;padding:10px 20px;overflow-x:auto;scrollbar-width:none;background:var(--bg0)}
+    .events-strip::-webkit-scrollbar{display:none}
+    .event-chip{flex-shrink:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;min-width:200px;max-width:280px;cursor:pointer;transition:border-color .2s}
+    .event-chip:hover{border-color:var(--blue)}
+    .event-chip.spike{border-left:3px solid var(--green)}
+    .event-chip.dip{border-left:3px solid var(--red)}
+    .event-chip-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    .event-chip-date{font-size:11px;color:var(--text3);font-family:var(--mono)}
+    .event-chip-change{font-size:12px;font-weight:700;font-family:var(--mono)}
+    .event-chip-change.up{color:var(--green)} .event-chip-change.down{color:var(--red)}
+    .event-chip-headline{font-size:12px;color:var(--text2);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .event-chip-source{font-size:10px;color:var(--text3);margin-top:4px}
+
+    /* ── Layout ── */
+    .layout{display:flex;height:calc(100vh - 97px);overflow:hidden}
+
+    /* ── Left sidebar ── */
+    .sidebar{width:190px;flex-shrink:0;border-right:1px solid var(--border);padding:16px 12px;overflow-y:auto;background:var(--bg1)}
+    .filter-group{margin-bottom:22px}
+    .filter-group-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px;padding-left:6px}
+    .filter-btn{display:flex;align-items:center;gap:7px;width:100%;background:none;border:none;color:var(--text2);padding:6px 8px;border-radius:5px;font-size:12.5px;text-align:left;transition:all .15s}
+    .filter-btn:hover{background:var(--bg2);color:var(--text1)}
+    .filter-btn.active{background:var(--blue-dim);color:var(--blue);font-weight:500}
+    .filter-count{margin-left:auto;font-size:10px;background:var(--bg3);color:var(--text3);padding:1px 6px;border-radius:10px;font-family:var(--mono)}
+    .filter-btn.active .filter-count{background:var(--blue-dim);color:var(--blue)}
+
+    /* ── Results ── */
+    .results-wrap{flex:1;overflow-y:auto;padding:16px;min-width:0}
+    .results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+    .results-meta{font-size:12px;color:var(--text2)}
+    .results-meta strong{color:var(--text1)}
+    .sort-row{display:flex;gap:4px}
+    .sort-btn{background:none;border:1px solid var(--border);color:var(--text2);padding:4px 11px;border-radius:var(--r);font-size:11.5px;transition:all .2s}
+    .sort-btn:hover{border-color:var(--blue);color:var(--blue)}
+    .sort-btn.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue);font-weight:600}
+
+    /* ── Card ── */
+    .card-list{display:flex;flex-direction:column;gap:8px}
+    .card{display:block;background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;transition:border-color .2s,transform .15s,box-shadow .2s}
+    .card:hover{border-color:var(--blue);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+    .card-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;border:1px solid transparent}
+    .badge-ticker{background:#1a1200;color:#ffb300;border-color:#ffb30030}
+    .badge-reddit{background:#2a1000;color:#ff6314;border-color:#ff631430}
+    .badge-news{background:var(--blue-dim);color:var(--blue);border-color:#4f8ef730}
+    .badge-bullish{background:var(--green-dim);color:var(--green)}
+    .badge-bearish{background:var(--red-dim);color:var(--red)}
+    .badge-neutral{background:var(--bg3);color:var(--text3)}
+    .badge-geopolitical{background:#1a0d1a;color:#ce93d8;border-color:#ce93d830}
+    .badge-fundamental{background:var(--purple-dim);color:var(--purple)}
+    .badge-technical{background:var(--green-dim);color:var(--green)}
+    .badge-general{background:var(--bg3);color:var(--text3)}
+    .card-title{font-size:13.5px;font-weight:600;color:var(--text1);margin-bottom:5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .card-body{font-size:12.5px;color:var(--text2);line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+    .card-footer{display:flex;align-items:center;gap:12px;font-size:11.5px;color:var(--text3);flex-wrap:wrap}
+    .card-footer .metric{display:flex;align-items:center;gap:4px}
+    .card-footer .spacer{flex:1}
+
+    /* ── Right panel ── */
+    .panel{width:260px;flex-shrink:0;border-left:1px solid var(--border);padding:14px;overflow-y:auto;background:var(--bg1)}
+    .panel-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+    .panel-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:12px}
+    .sent-bars{display:flex;flex-direction:column;gap:9px}
+    .sent-bar-row{display:flex;align-items:center;gap:8px;font-size:11px}
+    .sent-bar-label{width:56px;color:var(--text2)}
+    .sent-bar-track{flex:1;height:6px;background:var(--bg3);border-radius:4px;overflow:hidden}
+    .sent-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+    .sent-bar-fill.bullish{background:var(--green)} .sent-bar-fill.bearish{background:var(--red)} .sent-bar-fill.neutral{background:var(--text3)}
+    .sent-bar-pct{width:32px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--text3)}
+    .tags{display:flex;flex-wrap:wrap;gap:5px}
+    .tag-chip{background:var(--bg3);border:1px solid var(--border);color:var(--blue);padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .2s}
+    .tag-chip:hover{background:var(--blue-dim);border-color:var(--blue)}
+    .src-item{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;margin-bottom:6px;color:var(--text2)}
+    .src-count{font-family:var(--mono);font-size:11px;color:var(--text3);background:var(--bg3);padding:1px 8px;border-radius:10px}
+    .key-terms{display:flex;flex-wrap:wrap;gap:4px}
+    .key-term{background:var(--bg3);color:var(--text2);padding:3px 8px;border-radius:4px;font-size:10.5px}
+
+    /* ── Skeleton ── */
+    .skeleton-list{display:flex;flex-direction:column;gap:8px}
+    .skeleton-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+    .skeleton-line{background:linear-gradient(90deg,var(--bg2) 25%,var(--bg3) 50%,var(--bg2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;margin-bottom:9px}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+    /* ── Empty state ── */
+    .empty{text-align:center;padding:80px 20px;color:var(--text3)}
+    .empty-icon{font-size:52px;margin-bottom:16px}
+    .empty-title{font-size:16px;color:var(--text2);font-weight:600;margin-bottom:8px}
+    .empty-desc{font-size:13px;line-height:1.7}
+
+    /* ── Modal ── */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center}
+    .overlay.open{display:flex}
+    .modal{background:var(--bg1);border:1px solid var(--border);border-radius:10px;padding:26px;width:500px;max-width:92vw;max-height:80vh;overflow-y:auto}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;font-size:15px;font-weight:700;margin-bottom:20px}
+    .modal-close{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer}
+    .modal-close:hover{color:var(--text1)}
+    .api-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:7px;font-size:13px}
+    .api-row-name{font-weight:500}
+    .api-row-hint{font-size:11px;color:var(--text3);flex:1}
+    .pill{padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+    .pill-green{background:var(--green-dim);color:var(--green)} .pill-red{background:var(--red-dim);color:var(--red)}
+    .info-box{background:var(--blue-dim);border:1px solid #4f8ef730;border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.6;margin-top:14px}
+    .info-box a{color:var(--blue);text-decoration:underline}
+    .code-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--text2);margin-top:16px;line-height:1.7}
+    .code-key{color:var(--green)}
+
+    @media(max-width:1100px){.panel{display:none}}
+    @media(max-width:750px){.sidebar{display:none}.header{flex-wrap:wrap;height:auto;padding:10px}}
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo"><div class="logo-dot"></div>Market Intel</div>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" class="search-input"
+      placeholder='Try: "natural gas EIA", "crude oil OPEC", "bitcoin halving"…' autocomplete="off"/>
+    <button class="btn-search" id="searchBtn" onclick="doSearch()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Scan
+    </button>
+  </div>
+  <div class="header-right">
+    <div class="api-pill" id="apiPill">
+      <div class="api-pill-dot warn" id="apiDot"></div>
+      <span id="apiLabel">Checking APIs…</span>
+    </div>
+    <button class="btn-icon" onclick="openModal()">⚙ API Keys</button>
+  </div>
+</header>
+
+<!-- Presets -->
+<div class="presets-bar">
+  <button class="preset" onclick="preset('natural gas EIA storage')">⛽ Natural Gas</button>
+  <button class="preset" onclick="preset('crude oil WTI OPEC')">🛢 Crude Oil</button>
+  <button class="preset" onclick="preset('gold XAU price')">🥇 Gold</button>
+  <button class="preset" onclick="preset('silver XAG trading')">🥈 Silver</button>
+  <button class="preset" onclick="preset('S&P 500 SPX market')">📈 S&P 500</button>
+  <button class="preset" onclick="preset('NASDAQ tech stocks')">💻 NASDAQ</button>
+  <button class="preset" onclick="preset('Bitcoin BTC crypto')">₿ Bitcoin</button>
+  <button class="preset" onclick="preset('Ethereum ETH DeFi')">Ξ Ethereum</button>
+  <button class="preset" onclick="preset('EUR USD forex')">💱 EUR/USD</button>
+  <button class="preset" onclick="preset('Federal Reserve rate hike')">🏦 Fed Rate</button>
+  <button class="preset" onclick="preset('inflation CPI economy')">📊 Inflation</button>
+  <button class="preset" onclick="preset('LNG exports global energy')">🔌 LNG</button>
+</div>
+
+<!-- Price Chart (hidden until search) -->
+<div class="chart-section" id="chartSection">
+  <div class="chart-header">
+    <div>
+      <div class="chart-symbol" id="chartSymbol"></div>
+      <div class="chart-name" id="chartName"></div>
+    </div>
+    <div class="chart-price" id="chartPrice"></div>
+    <div class="chart-change" id="chartChange"></div>
+    <div class="chart-range-wrap">
+      <button class="chart-range-btn" data-range="1mo" onclick="setChartRange('1mo',this)">1M</button>
+      <button class="chart-range-btn active" data-range="3mo" onclick="setChartRange('3mo',this)">3M</button>
+      <button class="chart-range-btn" data-range="6mo" onclick="setChartRange('6mo',this)">6M</button>
+      <button class="chart-range-btn" data-range="1y"  onclick="setChartRange('1y',this)">1Y</button>
+    </div>
+    <button class="btn-close-chart" onclick="closeChart()">✕</button>
+  </div>
+  <div id="tvChart"></div>
+  <div class="events-strip" id="eventsStrip"></div>
+</div>
+
+<!-- Main layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="filter-group">
+      <div class="filter-group-label">Source</div>
+      <button class="filter-btn active" data-f="source" data-v="all"     onclick="setFilter('source','all',this)">📡 All <span class="filter-count" id="fc-all">0</span></button>
+      <button class="filter-btn"        data-f="source" data-v="ticker"     onclick="setFilter('source','ticker',this)">📊 Ticker News <span class="filter-count" id="fc-ticker">0</span></button>
+      <button class="filter-btn"        data-f="source" data-v="reddit"  onclick="setFilter('source','reddit',this)">🔴 Reddit <span class="filter-count" id="fc-reddit">0</span></button>
+      <button class="filter-btn"        data-f="source" data-v="news"    onclick="setFilter('source','news',this)">📰 News <span class="filter-count" id="fc-news">0</span></button>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">Content Type</div>
+      <button class="filter-btn active" data-f="cat" data-v="all"          onclick="setFilter('cat','all',this)">⚡ All Types</button>
+      <button class="filter-btn"        data-f="cat" data-v="fundamental"  onclick="setFilter('cat','fundamental',this)">📋 Fundamental</button>
+      <button class="filter-btn"        data-f="cat" data-v="technical"    onclick="setFilter('cat','technical',this)">📉 Technical</button>
+      <button class="filter-btn"        data-f="cat" data-v="geopolitical" onclick="setFilter('cat','geopolitical',this)">🌍 Geopolitical</button>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">Sentiment</div>
+      <button class="filter-btn active" data-f="sent" data-v="all"     onclick="setFilter('sent','all',this)">All</button>
+      <button class="filter-btn"        data-f="sent" data-v="bullish" onclick="setFilter('sent','bullish',this)">🟢 Bullish</button>
+      <button class="filter-btn"        data-f="sent" data-v="bearish" onclick="setFilter('sent','bearish',this)">🔴 Bearish</button>
+      <button class="filter-btn"        data-f="sent" data-v="neutral" onclick="setFilter('sent','neutral',this)">⚪ Neutral</button>
+    </div>
+    <div class="filter-group">
+      <div class="filter-group-label">Time Range</div>
+      <button class="filter-btn active" data-f="time" data-v="all" onclick="setFilter('time','all',this)">All Time</button>
+      <button class="filter-btn"        data-f="time" data-v="1h"  onclick="setFilter('time','1h',this)">Last Hour</button>
+      <button class="filter-btn"        data-f="time" data-v="24h" onclick="setFilter('time','24h',this)">Last 24h</button>
+      <button class="filter-btn"        data-f="time" data-v="7d"  onclick="setFilter('time','7d',this)">Last 7 Days</button>
+    </div>
+  </aside>
+
+  <!-- Results -->
+  <main class="results-wrap">
+    <div class="results-header">
+      <div class="results-meta" id="resultsMeta">Ready — search above or pick a market preset</div>
+      <div class="sort-row">
+        <button class="sort-btn active" data-s="latest"  onclick="setSort('latest',this)">Latest</button>
+        <button class="sort-btn"        data-s="popular" onclick="setSort('popular',this)">Popular</button>
+      </div>
+    </div>
+    <div id="resultsBody">
+      <div class="empty">
+        <div class="empty-icon">📡</div>
+        <div class="empty-title">Market Intelligence Scanner</div>
+        <div class="empty-desc">
+          Type any market keyword and hit <strong>Scan</strong>, or click a preset above.<br><br>
+          Results are filtered for market relevance — only fundamental & technical content.<br><br>
+          <span style="color:var(--green)">✓ Reddit (curated finance subs)</span> &nbsp;
+          <span style="color:var(--green)">✓ Google News</span> &nbsp;
+          <span style="color:var(--green)">✓ NewsAPI</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right panel -->
+  <aside class="panel">
+    <div class="panel-card">
+      <div class="panel-card-title">Market Sentiment</div>
+      <div class="sent-bars">
+        <div class="sent-bar-row"><span class="sent-bar-label">🟢 Bullish</span><div class="sent-bar-track"><div class="sent-bar-fill bullish" id="sb-bullish" style="width:0%"></div></div><span class="sent-bar-pct" id="sp-bullish">0%</span></div>
+        <div class="sent-bar-row"><span class="sent-bar-label">🔴 Bearish</span><div class="sent-bar-track"><div class="sent-bar-fill bearish" id="sb-bearish" style="width:0%"></div></div><span class="sent-bar-pct" id="sp-bearish">0%</span></div>
+        <div class="sent-bar-row"><span class="sent-bar-label">⚪ Neutral</span><div class="sent-bar-track"><div class="sent-bar-fill neutral" id="sb-neutral" style="width:0%"></div></div><span class="sent-bar-pct" id="sp-neutral">0%</span></div>
+      </div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-card-title">Trending Hashtags</div>
+      <div class="tags" id="panelTags"><span style="font-size:11px;color:var(--text3)">Scan to populate</span></div>
+    </div>
+    <div class="panel-card">
+      <div class="panel-card-title">Top Sources</div>
+      <div id="panelSources"><span style="font-size:11px;color:var(--text3)">Scan to populate</span></div>
+    </div>
+    <div class="panel-card" id="contextCard" style="display:none">
+      <div class="panel-card-title">Market Context</div>
+      <div id="panelContext" style="font-size:12px;color:var(--text2);line-height:1.65"></div>
+    </div>
+  </aside>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">⚙ API Configuration <button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div id="modalApiRows"></div>
+    <div class="info-box">
+      <strong>Reddit</strong> + <strong>Google News</strong> work immediately — no keys needed.<br>
+      <strong>NewsAPI</strong>: free key at <a href="https://newsapi.org" target="_blank">newsapi.org</a> (100 req/day).<br>
+      <strong>Ticker News</strong>: Yahoo Finance RSS per symbol — free, no key needed.
+    </div>
+    <div class="code-block">
+      <div style="color:var(--text3)"># .env file in project root</div>
+      <div><span class="code-key">NEWS_API_KEY</span>=your_key_here</div>
+      <div><span class="code-key">TWITTER_BEARER_TOKEN</span>=your_token_here</div>
+    </div>
+    <div style="margin-top:18px;text-align:right"><button class="btn-icon" onclick="closeModal()">Close</button></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
