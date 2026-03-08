@@ -156,15 +156,17 @@ function render() {
 function updatePanel() {
   if (!S.filtered.length) return;
   const sc = { bullish: 0, bearish: 0, neutral: 0 };
-  let c5 = 0, c10 = 0, c24 = 0;
+  let funds5 = [], funds10 = [], funds24 = [];
   const now = Date.now();
 
   S.filtered.forEach(i => {
-    sc[i._sent]++
+    sc[i._sent]++;
     const dt = now - itemDate(i).getTime();
-    if (dt <= 5 * 3600000) c5++;
-    if (dt <= 10 * 3600000) c10++;
-    if (dt <= 24 * 3600000) c24++;
+    if (i._cat === 'fundamental' && i.title) {
+      if (dt <= 5 * 3600000) funds5.push(i.title);
+      else if (dt <= 10 * 3600000) funds10.push(i.title);
+      else if (dt <= 24 * 3600000) funds24.push(i.title);
+    }
   });
 
   const tot = S.filtered.length;
@@ -174,9 +176,21 @@ function updatePanel() {
     document.getElementById(`sp-${s}`).textContent = pct + '%';
   });
 
-  document.getElementById('count5h').textContent = c5;
-  document.getElementById('count10h').textContent = c10;
-  document.getElementById('count24h').textContent = c24;
+  const renderSummary = (id, label, items) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!items.length) {
+      el.innerHTML = `<div style="font-size:10px; color:var(--text3); text-transform:uppercase; margin-bottom:4px;">${label}</div><div style="font-size:12px; color:var(--text2); font-style:italic;">No major fundamental events</div>`;
+      return;
+    }
+    const topItems = items.slice(0, 2); // Show top 2 highlights
+    const listHtml = topItems.map(t => `<li style="font-size:12px; margin-bottom:6px; line-height:1.4; color:var(--text1);"><span style="color:var(--blue); margin-right:4px;">•</span>${esc(t)}</li>`).join('');
+    el.innerHTML = `<div style="font-size:10px; color:var(--text3); text-transform:uppercase; margin-bottom:4px;">${label}</div><ul style="list-style:none; padding:0; margin:0;">${listHtml}</ul>`;
+  };
+
+  renderSummary('summary5h', 'Last 5 Hours', funds5);
+  renderSummary('summary10h', 'Last 10 Hours', funds10);
+  renderSummary('summary24h', 'Last 24 Hours', funds24);
 
   const found = {};
   S.filtered.forEach(i => (i._tags || []).forEach(t => { found[t] = (found[t] || 0) + 1; }));
