@@ -157,7 +157,8 @@ def _parse_rss(xml, outlet_name, seen=None):
         if not title or not url or url in seen: continue
         seen.add(url)
         try:
-            dt = datetime(*time.strptime(pub, '%a, %d %b %Y %H:%M:%S %Z')[:6], tzinfo=timezone.utc).isoformat() if pub else datetime.now(timezone.utc).isoformat()
+            from email.utils import parsedate_to_datetime
+            dt = parsedate_to_datetime(pub).astimezone(timezone.utc).isoformat() if pub else datetime.now(timezone.utc).isoformat()
         except:
             dt = datetime.now(timezone.utc).isoformat()
         if is_market_relevant(title, desc, min_score=1):
