@@ -297,6 +297,26 @@
 
   <!-- Right panel -->
   <aside class="panel">
+    <div class="panel-card" id="activityCard">
+      <div class="panel-card-title">Activity Summary</div>
+      <div style="display:flex; justify-content: space-between; margin-bottom: 8px;">
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:10px; color:var(--text3); text-transform:uppercase;">Last 5h</span>
+          <span style="font-family:var(--mono); font-size:16px; font-weight:700; color:var(--blue);" id="count5h">0</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:10px; color:var(--text3); text-transform:uppercase;">Last 10h</span>
+          <span style="font-family:var(--mono); font-size:16px; font-weight:700; color:var(--blue);" id="count10h">0</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <span style="font-size:10px; color:var(--text3); text-transform:uppercase;">Last 24h</span>
+          <span style="font-family:var(--mono); font-size:16px; font-weight:700; color:var(--blue);" id="count24h">0</span>
+        </div>
+      </div>
+      <div style="font-size:11px; color:var(--text3); text-align:center; line-height:1.4;">
+        Number of headlines generated across all sources.
+      </div>
+    </div>
     <div class="panel-card">
       <div class="panel-card-title">Market Sentiment</div>
       <div class="sent-bars">
