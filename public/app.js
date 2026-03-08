@@ -299,8 +299,8 @@ function renderEventsStrip(spikes) {
   const strip = document.getElementById('eventsStrip');
   if (!spikes.length) { strip.innerHTML = ''; return; }
 
-  // Sort by magnitude
-  const sorted = [...spikes].sort((a,b) => Math.abs(b.change)-Math.abs(a.change)).slice(0,8);
+  // Sort by time chronologically (newest first)
+  const sorted = [...spikes].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0,8);
 
   strip.innerHTML = sorted.map(s => {
     const events  = findEventsNear(s.time);
