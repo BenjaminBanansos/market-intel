@@ -165,7 +165,7 @@
         #tvChart {
             flex: 1;
             width: 100%;
-            height: 100%;
+            min-height: 400px;
         }
 
         .loading-overlay {
@@ -638,6 +638,7 @@
 
     <script>
         const chartProperties = {
+            autoSize: true,
             layout: { textColor: '#e2e8f4', background: { type: 'solid', color: '#0b0f18' } },
             grid: { vertLines: { color: '#1c2333' }, horzLines: { color: '#1c2333' } },
             crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
