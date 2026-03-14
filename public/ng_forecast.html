@@ -130,6 +130,17 @@
     .cat-link { color:var(--text2); text-decoration:none; transition:color .2s }
     .cat-link:hover { color:var(--blue); text-decoration:underline }
     .cat-source { font-size:11px; color:var(--text3); margin-left:6px; font-weight:500 }
+
+    /* ── Future Bar Playback ── */
+    .play-controls { display:flex; align-items:center; gap:8px; margin-left:auto }
+    .play-btn { background:var(--bg3); border:1px solid var(--border); color:var(--text1); border-radius:var(--r); padding:4px 10px; font-size:12px; font-weight:600; display:flex; align-items:center; gap:5px; transition:all .2s; cursor:pointer }
+    .play-btn:hover { border-color:var(--purple); color:var(--purple) }
+    .play-btn.active { background:var(--purple-dim); border-color:var(--purple); color:var(--purple) }
+    .play-btn:disabled { opacity:.4; cursor:default }
+    .play-progress { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text3) }
+    .play-bar-wrap { width:80px; height:4px; background:var(--bg3); border-radius:2px; overflow:hidden }
+    .play-bar-fill { height:100%; background:var(--purple); border-radius:2px; transition:width .1s linear; width:0% }
+    .play-speed { background:var(--bg3); border:1px solid var(--border); color:var(--text2); border-radius:4px; padding:3px 6px; font-size:11px; cursor:pointer }
   </style>
 </head>
 <body>
@@ -199,17 +210,28 @@
       <div class="pred-header-bar">
         <span class="pred-title">⬡ Mean Reversion Forecast (30-period)</span>
         <div class="pred-legend">
-          <div class="pred-legend-item">
-            <div class="pred-legend-line" style="background:#a78bfa"></div>ML Path
-          </div>
-          <div class="pred-legend-item">
-            <div class="pred-legend-line" style="background:rgba(167,139,250,0.5)"></div>±1 SD
-          </div>
-          <div class="pred-legend-item">
-            <div class="pred-legend-line" style="background:rgba(167,139,250,0.2)"></div>±2 SD
-          </div>
-          <div class="pred-legend-item">
-            <div class="pred-legend-line" style="background:#fbbf24;height:1px;border-top:1px dashed #fbbf24"></div>MR Target
+          <div class="pred-legend-item"><div class="pred-legend-line" style="background:#a78bfa"></div>ML Path</div>
+          <div class="pred-legend-item"><div class="pred-legend-line" style="background:rgba(167,139,250,0.5)"></div>±1 SD</div>
+          <div class="pred-legend-item"><div class="pred-legend-line" style="background:rgba(167,139,250,0.2)"></div>±2 SD</div>
+          <div class="pred-legend-item"><div class="pred-legend-line" style="background:#fbbf24;border-top:1px dashed #fbbf24"></div>MR Target</div>
+        </div>
+        <div class="play-controls">
+          <select class="play-speed" id="playSpeed" title="Playback speed">
+            <option value="600">0.5×</option>
+            <option value="300" selected>1×</option>
+            <option value="150">2×</option>
+            <option value="80">4×</option>
+          </select>
+          <button class="play-btn" id="playResetBtn" onclick="playReset()" title="Reset">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>
+          </button>
+          <button class="play-btn" id="playBtn" onclick="playToggle()">
+            <svg id="playIcon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span id="playBtnLabel">Play</span>
+          </button>
+          <div class="play-progress">
+            <div class="play-bar-wrap"><div class="play-bar-fill" id="playBarFill"></div></div>
+            <span id="playCounter">0/30</span>
           </div>
         </div>
       </div>
@@ -559,6 +581,9 @@
     const targetEl  = document.getElementById('stat-slope');
     targetEl.innerText   = fmt(revTarget);
     targetEl.style.color = revTarget > lastCandle.close ? 'var(--green)' : 'var(--red)';
+
+    // Sync playback state — show all bars on fresh load, ready for replay
+    playResetOnLoad();
   }
 
   // ─── Reasoning Modal ─────────────────────────────────────────────────────────
@@ -676,6 +701,93 @@
     const el = document.getElementById(id);
     el.classList.remove('active');
     setTimeout(() => el.style.display = 'none', 200);
+  }
+
+  // ─── Future Bar Playback ─────────────────────────────────────────────────────
+  let _playTimer   = null;
+  let _playFrame   = 0;
+  let _playRunning = false;
+
+  function playReset() {
+    clearInterval(_playTimer);
+    _playRunning = false;
+    _playFrame   = 0;
+    _updatePlayUI();
+    if (_lastData && _lastData.predictions) {
+      _renderPredFrame(0, _lastData);
+    }
+  }
+
+  function playToggle() {
+    if (!_lastData || !_lastData.predictions) return;
+    _playRunning = !_playRunning;
+    if (_playRunning) {
+      if (_playFrame >= _lastData.predictions.length) _playFrame = 0;
+      _playTimer = setInterval(() => {
+        _playFrame++;
+        _renderPredFrame(_playFrame, _lastData);
+        _updatePlayUI();
+        if (_playFrame >= _lastData.predictions.length) {
+          clearInterval(_playTimer);
+          _playRunning = false;
+          _updatePlayUI();
+        }
+      }, parseInt(document.getElementById('playSpeed').value));
+    } else {
+      clearInterval(_playTimer);
+    }
+    _updatePlayUI();
+  }
+
+  function _updatePlayUI() {
+    const total  = _lastData ? _lastData.predictions.length : 30;
+    const icon   = document.getElementById('playIcon');
+    const label  = document.getElementById('playBtnLabel');
+    const btn    = document.getElementById('playBtn');
+    const fill   = document.getElementById('playBarFill');
+    const counter= document.getElementById('playCounter');
+
+    if (_playRunning) {
+      icon.innerHTML  = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+      label.innerText = 'Pause';
+      btn.classList.add('active');
+    } else {
+      icon.innerHTML  = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      label.innerText = _playFrame >= total ? 'Replay' : 'Play';
+      btn.classList.remove('active');
+    }
+    fill.style.width  = `${(_playFrame / total) * 100}%`;
+    counter.innerText = `${_playFrame}/${total}`;
+  }
+
+  function _renderPredFrame(frame, data) {
+    const preds = data.predictions.slice(0, frame);
+    const anchor = data.ohlcv.slice(-15).map(d => ({ time:d.time, value:d.close }));
+
+    if (preds.length === 0) {
+      predMean.setData([]);
+      predU1.setData([]); predL1.setData([]);
+      predU2.setData([]); predL2.setData([]);
+      predAnchor.setData(anchor);
+      return;
+    }
+
+    const anchorFull = [...anchor, { time:preds[0].time, value:preds[0].mean }];
+    predAnchor.setData(anchorFull);
+    predMean.setData(preds.map(d => ({ time:d.time, value:d.mean })));
+    predU1.setData(preds.map(d => ({ time:d.time, value:d.upper_1sd })));
+    predL1.setData(preds.map(d => ({ time:d.time, value:d.lower_1sd })));
+    predU2.setData(preds.map(d => ({ time:d.time, value:d.upper_2sd })));
+    predL2.setData(preds.map(d => ({ time:d.time, value:d.lower_2sd })));
+    predChart.timeScale().fitContent();
+  }
+
+  // Reset playback when new data loads
+  function playResetOnLoad() {
+    clearInterval(_playTimer);
+    _playRunning = false;
+    _playFrame   = _lastData ? _lastData.predictions.length : 0;
+    _updatePlayUI();
   }
 
   // ─── Init ────────────────────────────────────────────────────────────────────
