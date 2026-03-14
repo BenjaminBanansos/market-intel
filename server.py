@@ -530,11 +530,12 @@ def api_predict_ng(interval='1d', range_='5y'):
             return None
 
         # Technicals
-        sma_20 = calc_sma(closes, 20)
-        sma_50 = calc_sma(closes, 50)
+        sma_20  = calc_sma(closes, 20)
+        sma_50  = calc_sma(closes, 50)
+        sma_100 = calc_sma(closes, 100)
         sma_200 = calc_sma(closes, 200)
-        ema_20 = calc_ema(closes, 20)
-        rsi_14 = calc_rsi(closes, 14)
+        ema_20  = calc_ema(closes, 20)
+        rsi_14  = calc_rsi(closes, 14)
 
         # Support / Resistance (Pivot Points from Previous Period)
         pivots = None
@@ -562,13 +563,26 @@ def api_predict_ng(interval='1d', range_='5y'):
         indicators = []
         for i in range(len(ohlcv)):
             indicators.append({
-                'time': ohlcv[i]['time'],
-                'sma20': sma_20[i],
-                'sma50': sma_50[i],
+                'time':   ohlcv[i]['time'],
+                'sma20':  sma_20[i],
+                'sma50':  sma_50[i],
+                'sma100': sma_100[i],
                 'sma200': sma_200[i],
-                'ema20': ema_20[i],
-                'rsi14': rsi_14[i]
+                'ema20':  ema_20[i],
+                'rsi14':  rsi_14[i],
             })
+
+        # EWMA rolling volatility series (for quant modal chart)
+        ewma_series = []
+        if len(closes) >= 2:
+            decay = 0.94
+            rets = [(closes[i] - closes[i-1]) / closes[i-1] for i in range(1, len(closes))]
+            variance = rets[0] ** 2
+            ewma_series.append({'time': ohlcv[0]['time'], 'value': None})
+            for j, r in enumerate(rets):
+                variance = decay * variance + (1 - decay) * r ** 2
+                ewma_series.append({'time': ohlcv[j + 1]['time'],
+                                    'value': round(math.sqrt(variance) * 100, 4)})
 
         # Institutional Quant Prediction (using recent 100 periods)
         n_periods = min(100, len(closes))
@@ -667,9 +681,15 @@ def api_predict_ng(interval='1d', range_='5y'):
             
             # Pin news that have strong directional keywords (score >= 2 or <= -2)
             if item_bull_score >= 2 or item_bear_score >= 2:
-                if len(pinned_news) < 3: # Keep top 3 driving stories
+                if len(pinned_news) < 3:
                     item['sentiment'] = 'bullish' if item_bull_score > item_bear_score else 'bearish'
-                    pinned_news.append(item)
+                    pinned_news.append({
+                        'title':       item['title'],
+                        'outlet':      item['outlet'],
+                        'url':         item['url'],
+                        'sentiment':   item['sentiment'],
+                        'publishedAt': item.get('publishedAt', ''),
+                    })
 
         if len(news) > 0:
             sentiment_pct = max(-100, min(100, (sentiment_score / len(news)) * 100))
@@ -720,15 +740,16 @@ def api_predict_ng(interval='1d', range_='5y'):
         }
 
         return {
-            'ohlcv': ohlcv,
-            'indicators': indicators,
-            'pivots': pivots,
-            'predictions': predictions,
+            'ohlcv':        ohlcv,
+            'indicators':   indicators,
+            'pivots':       pivots,
+            'predictions':  predictions,
+            'ewma_series':  ewma_series,
             'fundamentals': fundamental,
             'stat_trend': {
-                'slope': m, 
-                'ewma_volatility': ewma_vol, 
-                'mean_reversion_target': mr_target
+                'slope':                m,
+                'ewma_volatility':      ewma_vol,
+                'mean_reversion_target': mr_target,
             }
         }
     except Exception as e:
