@@ -723,9 +723,13 @@
     _playRunning = !_playRunning;
     if (_playRunning) {
       if (_playFrame >= _lastData.predictions.length) _playFrame = 0;
+      // Immediately show frame 0 (cleared) so user sees animation start
+      _renderPredFrame(_playFrame, _lastData, false);
+      // Fit once to set the full time range, then lock it
+      predChart.timeScale().fitContent();
       _playTimer = setInterval(() => {
         _playFrame++;
-        _renderPredFrame(_playFrame, _lastData);
+        _renderPredFrame(_playFrame, _lastData, false); // no fitContent during play
         _updatePlayUI();
         if (_playFrame >= _lastData.predictions.length) {
           clearInterval(_playTimer);
@@ -760,8 +764,8 @@
     counter.innerText = `${_playFrame}/${total}`;
   }
 
-  function _renderPredFrame(frame, data) {
-    const preds = data.predictions.slice(0, frame);
+  function _renderPredFrame(frame, data, fit = true) {
+    const preds  = data.predictions.slice(0, frame);
     const anchor = data.ohlcv.slice(-15).map(d => ({ time:d.time, value:d.close }));
 
     if (preds.length === 0) {
@@ -769,6 +773,7 @@
       predU1.setData([]); predL1.setData([]);
       predU2.setData([]); predL2.setData([]);
       predAnchor.setData(anchor);
+      if (fit) predChart.timeScale().fitContent();
       return;
     }
 
@@ -779,7 +784,7 @@
     predL1.setData(preds.map(d => ({ time:d.time, value:d.lower_1sd })));
     predU2.setData(preds.map(d => ({ time:d.time, value:d.upper_2sd })));
     predL2.setData(preds.map(d => ({ time:d.time, value:d.lower_2sd })));
-    predChart.timeScale().fitContent();
+    if (fit) predChart.timeScale().fitContent();
   }
 
   // Reset playback when new data loads
