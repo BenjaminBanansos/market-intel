@@ -7,7 +7,7 @@ Market Intel — Proxy server
 """
 
 import http.server, urllib.request, urllib.parse, urllib.error
-import json, re, os, time
+import json, re, os, time, math
 from datetime import datetime, timezone
 
 # Resolve paths relative to this script (works locally AND on any host)
@@ -359,6 +359,382 @@ def api_price(symbol, range_='3mo'):
         print(f'[Price] {symbol} — {e}')
         return None
 
+# ── Stats & Tech Indicators ────────────────────────────────────────────────────
+def calc_sma(prices, period):
+    res = []
+    for i in range(len(prices)):
+        if i < period - 1:
+            res.append(None)
+        else:
+            res.append(round(sum(prices[i-period+1:i+1]) / period, 4))
+    return res
+
+def calc_ema(prices, period):
+    res = []
+    multiplier = 2 / (period + 1)
+    for i in range(len(prices)):
+        if i == 0:
+            res.append(prices[0])
+        else:
+            prev = res[i-1]
+            if prev is None:
+                if i < period - 1:
+                    res.append(None)
+                else:
+                    sma = sum(prices[i-period+1:i+1]) / period
+                    res.append(round((prices[i] - sma) * multiplier + sma, 4))
+            else:
+                res.append(round((prices[i] - prev) * multiplier + prev, 4))
+    return res
+
+def calc_rsi(prices, period=14):
+    res = []
+    gains = []
+    losses = []
+    for i in range(1, len(prices)):
+        diff = prices[i] - prices[i-1]
+        gains.append(max(diff, 0))
+        losses.append(max(-diff, 0))
+
+    avg_gain = None
+    avg_loss = None
+
+    for i in range(len(prices)):
+        if i < period:
+            res.append(None)
+        elif i == period:
+            avg_gain = sum(gains[:period]) / period
+            avg_loss = sum(losses[:period]) / period
+            rs = avg_gain / avg_loss if avg_loss != 0 else 0
+            res.append(round(100 - (100 / (1 + rs)), 2))
+        else:
+            avg_gain = (avg_gain * (period - 1) + gains[i-1]) / period
+            avg_loss = (avg_loss * (period - 1) + losses[i-1]) / period
+            rs = avg_gain / avg_loss if avg_loss != 0 else 0
+            res.append(round(100 - (100 / (1 + rs)), 2))
+    return res
+
+def linear_regression(y):
+    n = len(y)
+    if n == 0: return 0, 0
+    x = list(range(n))
+    sum_x = sum(x)
+    sum_y = sum(y)
+    sum_xx = sum(i*i for i in x)
+    sum_xy = sum(x[i]*y[i] for i in range(n))
+    
+    denominator = n * sum_xx - sum_x**2
+    if denominator == 0:
+        return 0, sum_y/n
+    m = (n * sum_xy - sum_x * sum_y) / denominator
+    b = (sum_y - m * sum_x) / n
+    return m, b
+
+def _std_dev(y, m, b):
+    n = len(y)
+    if n == 0: return 0
+    variance = sum((y[i] - (m * i + b))**2 for i in range(n)) / n
+    return math.sqrt(variance)
+
+# ── Institutional Quant Models ────────────────────────────────────────────────
+
+def calc_ewma_volatility(prices, decay_factor=0.94):
+    """
+    JP Morgan RiskMetrics style EWMA Volatility.
+    More heavily weights recent volatility (decay_factor = lambda).
+    Standard institutional lambda for daily data is 0.94.
+    """
+    if len(prices) < 2: return 0
+    
+    # Calculate daily returns
+    returns = []
+    for i in range(1, len(prices)):
+        returns.append((prices[i] - prices[i-1]) / prices[i-1])
+        
+    # Initialize EWMA variance with standard sample variance
+    variance = sum(r**2 for r in returns) / len(returns)
+    
+    # Calculate EWMA recursively
+    for r in returns:
+        variance = (decay_factor * variance) + ((1 - decay_factor) * (r**2))
+    
+    # Return annualized-like approximation, scaled for price visualization
+    last_price = prices[-1]
+    vol_pct = math.sqrt(variance)
+    return last_price * vol_pct
+
+def mean_reversion_forecast(prices, periods_to_forecast):
+    """
+    Simplified Ornstein-Uhlenbeck Mean Reversion Mathematical Approximation.
+    Commodities mean-revert rather than trending linearly forever.
+    Returns the projected price path smoothing towards the historical mean.
+    """
+    if not prices: return []
+    
+    hist_mean = sum(prices) / len(prices)
+    last_price = prices[-1]
+    
+    # Determine the speed of reversion based on recent volatility
+    # Faster reversion if we are far from the mean
+    reversion_speed = 0.05 
+    
+    forecast_path = []
+    current_proj = last_price
+    
+    for _ in range(periods_to_forecast):
+        # Drift towards the mean
+        drift = reversion_speed * (hist_mean - current_proj)
+        current_proj += drift
+        forecast_path.append(current_proj)
+        
+    return forecast_path, hist_mean
+
+# ── Natural Gas Prediction Endpoint ───────────────────────────────────────────
+def api_predict_ng(interval='1d', range_='5y'):
+    symbol = 'NG=F'
+    try:
+        url  = (f'https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(symbol)}'
+                f'?range={range_}&interval={interval}&includePrePost=false')
+        data = json.loads(http_get(url, {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json',
+        }))
+        result    = data['chart']['result'][0]
+        timestamps= result['timestamp']
+        q_data    = result['indicators']['quote'][0]
+
+        ohlcv = []
+        closes = []
+        for i, ts in enumerate(timestamps):
+            c = q_data['close'][i]
+            if c is None:
+                continue
+            
+            # Format time correctly for lightweight charts based on interval
+            if interval in ['1d', '1wk', '1mo']:
+                time_str = datetime.fromtimestamp(ts, tz=timezone.utc).strftime('%Y-%m-%d')
+            else:
+                time_str = ts # Unix timestamp for intraday
+
+            ohlcv.append({
+                'time':   time_str,
+                'open':   round(q_data['open'][i] or c, 4),
+                'high':   round(q_data['high'][i] or c, 4),
+                'low':    round(q_data['low'][i]  or c, 4),
+                'close':  round(c, 4),
+                'volume': int(q_data['volume'][i] or 0),
+            })
+            closes.append(c)
+
+        if not closes:
+            return None
+
+        # Technicals
+        sma_20 = calc_sma(closes, 20)
+        sma_50 = calc_sma(closes, 50)
+        sma_200 = calc_sma(closes, 200)
+        ema_20 = calc_ema(closes, 20)
+        rsi_14 = calc_rsi(closes, 14)
+
+        # Support / Resistance (Pivot Points from Previous Period)
+        pivots = None
+        
+        # Find the most recently completed candle (not the current live unclosed one)
+        prev_candle = None
+        for i in range(len(ohlcv)-2, -1, -1): # Start from 2nd to last, work backwards
+            if ohlcv[i]['high'] is not None and ohlcv[i]['low'] is not None and ohlcv[i]['close'] is not None:
+                prev_candle = ohlcv[i]
+                break
+
+        if prev_candle:
+            p = (prev_candle['high'] + prev_candle['low'] + prev_candle['close']) / 3
+            r1 = (p * 2) - prev_candle['low']
+            s1 = (p * 2) - prev_candle['high']
+            r2 = p + (prev_candle['high'] - prev_candle['low'])
+            s2 = p - (prev_candle['high'] - prev_candle['low'])
+            
+            pivots = {
+                'p': round(p, 4),
+                'r1': round(r1, 4), 's1': round(s1, 4),
+                'r2': round(r2, 4), 's2': round(s2, 4)
+            }
+
+        indicators = []
+        for i in range(len(ohlcv)):
+            indicators.append({
+                'time': ohlcv[i]['time'],
+                'sma20': sma_20[i],
+                'sma50': sma_50[i],
+                'sma200': sma_200[i],
+                'ema20': ema_20[i],
+                'rsi14': rsi_14[i]
+            })
+
+        # Institutional Quant Prediction (using recent 100 periods)
+        n_periods = min(100, len(closes))
+        recent_closes = closes[-n_periods:]
+        
+        # Calculate Advanced Volatility (EWMA)
+        ewma_vol = calc_ewma_volatility(recent_closes, decay_factor=0.94)
+        
+        # Calculate Mean Reversion Path replacing linear regression
+        forecast_periods = 30
+        mr_path, mr_target = mean_reversion_forecast(recent_closes, forecast_periods)
+        
+        # Keep linear slope just for the metric dashboard trend direction
+        m, _ = linear_regression(recent_closes)
+
+        predictions = []
+        last_ts = timestamps[-1]
+        
+        interval_secs = 86400
+        if interval == '5m': interval_secs = 300
+        elif interval == '15m': interval_secs = 900
+        elif interval == '1h': interval_secs = 3600
+        
+        for i in range(forecast_periods):
+            pred_val = mr_path[i]
+            f_ts = last_ts + interval_secs * (i + 1)
+            
+            if interval in ['1d', '1wk', '1mo']:
+                time_str = datetime.fromtimestamp(f_ts, tz=timezone.utc).strftime('%Y-%m-%d')
+            else:
+                time_str = f_ts
+
+            # Cone dynamically expands over time (sqrt of time)
+            time_expansion = math.sqrt(i + 1)
+            dyn_vol = ewma_vol * time_expansion
+
+            predictions.append({
+                'time': time_str,
+                'mean': round(pred_val, 4),
+                'upper_1sd': round(pred_val + dyn_vol, 4),
+                'lower_1sd': round(pred_val - dyn_vol, 4),
+                'upper_2sd': round(pred_val + (2*dyn_vol), 4),
+                'lower_2sd': round(pred_val - (2*dyn_vol), 4),
+            })
+            
+        # Sentiment, Fundamental Analysis & Aggregations (Expanded)
+        news = api_news("Natural Gas")
+        if news is None:
+            news = []
+        sentiment_score = 0
+        
+        bull_kws = [
+            'surge', 'jump', 'gain', 'bull', 'winter', 'cold', 'freeze', 'storm', 'demand', 
+            'low storage', 'withdrawal', 'rally', 'up', 'lng export', 'outage', 'disruption', 
+            'geopolitical', 'russia', 'middle east', 'sanctions', 'strike', 'tight supply'
+        ]
+        bear_kws = [
+            'drop', 'fall', 'loss', 'bear', 'warm', 'mild', 'supply', 'injection', 'glut', 
+            'down', 'oversupply', 'record production', 'high invent', 'weak demand', 'selloff'
+        ]
+        
+        drivers_detected = set()
+        pinned_news = []
+        aggregated_news = {'Weather': [], 'Supply & Demand': [], 'Geopolitics': []}
+        
+        for item in news:
+            txt = (item['title'] + " " + item['text']).lower()
+            item_bull_score = 0
+            item_bear_score = 0
+            
+            # Aggregate news directly
+            for kw in bull_kws:
+                if kw in txt: 
+                    sentiment_score += 1
+                    item_bull_score += 1
+                    if kw in ['winter', 'cold', 'freeze', 'storm']: 
+                        drivers_detected.add('Weather (Cold)')
+                        aggregated_news['Weather'].append({'title': item['title'], 'outlet': item['outlet'], 'url': item['url'], 'type': 'Bullish'})
+                    if kw in ['lng export', 'outage', 'disruption']: 
+                        drivers_detected.add('Supply Disruptions / LNG Exports')
+                        aggregated_news['Supply & Demand'].append({'title': item['title'], 'outlet': item['outlet'], 'url': item['url'], 'type': 'Bullish'})
+                    if kw in ['geopolitical', 'russia', 'middle east', 'sanctions']: 
+                        drivers_detected.add('Geopolitics')
+                        aggregated_news['Geopolitics'].append({'title': item['title'], 'outlet': item['outlet'], 'url': item['url'], 'type': 'Bullish'})
+            
+            for kw in bear_kws:
+                if kw in txt: 
+                    sentiment_score -= 1
+                    item_bear_score += 1
+                    if kw in ['warm', 'mild']: 
+                        drivers_detected.add('Weather (Mild)')
+                        aggregated_news['Weather'].append({'title': item['title'], 'outlet': item['outlet'], 'url': item['url'], 'type': 'Bearish'})
+                    if kw in ['oversupply', 'record production', 'high invent', 'injection']: 
+                        drivers_detected.add('Oversupply / Production')
+                        aggregated_news['Supply & Demand'].append({'title': item['title'], 'outlet': item['outlet'], 'url': item['url'], 'type': 'Bearish'})
+            
+            # Pin news that have strong directional keywords (score >= 2 or <= -2)
+            if item_bull_score >= 2 or item_bear_score >= 2:
+                if len(pinned_news) < 3: # Keep top 3 driving stories
+                    item['sentiment'] = 'bullish' if item_bull_score > item_bear_score else 'bearish'
+                    pinned_news.append(item)
+
+        if len(news) > 0:
+            sentiment_pct = max(-100, min(100, (sentiment_score / len(news)) * 100))
+        else:
+            sentiment_pct = 0
+
+        # Technical vs Fundamental Move Evaluation
+        last_price = closes[-1]
+        move_reasoning = "Normal Market Fluctuation"
+        move_type = "neutral"
+        
+        if pivots:
+            if last_price >= pivots['r1']:
+                move_reasoning = "Technical Breakout (Above Resistance 1)"
+                move_type = "technical_bull"
+            elif last_price <= pivots['s1']:
+                move_reasoning = "Technical Breakdown (Below Support 1)"
+                move_type = "technical_bear"
+            
+            # If price moved significantly, check if fundamentals align
+            if abs(sentiment_pct) > 40:
+                if sentiment_pct > 0 and last_price >= pivots['p']:
+                    move_reasoning = "Fundamental Validated Move (Bullish News + Upward Price)"
+                    move_type = "fundamental_bull"
+                elif sentiment_pct < 0 and last_price <= pivots['p']:
+                    move_reasoning = "Fundamental Validated Move (Bearish News + Downward Price)"
+                    move_type = "fundamental_bear"
+
+        # Deduplicate aggregated news
+        for cat in aggregated_news:
+            seen_titles = set()
+            unique_items = []
+            for item in aggregated_news[cat]:
+                if item['title'] not in seen_titles:
+                    seen_titles.add(item['title'])
+                    unique_items.append(item)
+            aggregated_news[cat] = unique_items
+
+        fundamental = {
+            'sentiment_pct': round(sentiment_pct, 2),
+            'sentiment_label': 'Bullish' if sentiment_pct > 20 else 'Bearish' if sentiment_pct < -20 else 'Neutral',
+            'news_analyzed': len(news),
+            'drivers': list(drivers_detected),
+            'pinned_news': pinned_news,
+            'aggregated_news': aggregated_news,
+            'move_reasoning': move_reasoning,
+            'move_type': move_type
+        }
+
+        return {
+            'ohlcv': ohlcv,
+            'indicators': indicators,
+            'pivots': pivots,
+            'predictions': predictions,
+            'fundamentals': fundamental,
+            'stat_trend': {
+                'slope': m, 
+                'ewma_volatility': ewma_vol, 
+                'mean_reversion_target': mr_target
+            }
+        }
+    except Exception as e:
+        print(f'[Predict NG] {e}')
+        return None
+
 # ── HTTP Handler ───────────────────────────────────────────────────────────────
 MIME = {'.html':'text/html','.js':'application/javascript','.css':'text/css',
         '.json':'application/json','.ico':'image/x-icon','.png':'image/png'}
@@ -411,6 +787,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if path == '/api/news':
             try:    return self.send_json({'success': True,  'data': api_news(q)})
             except: return self.send_json({'success': False, 'data': []})
+        if path == '/api/predict_ng':
+            interval = qs.get('interval', ['1d'])[0]
+            range_ = qs.get('range', ['1y'])[0]
+            data = api_predict_ng(interval, range_)
+            return self.send_json({'success': bool(data), 'data': data})
         if path == '/api/twitter':
             try:    return self.send_json({'success': True, 'data': api_ticker_news(q)})
             except: return self.send_json({'success': False, 'data': []})
