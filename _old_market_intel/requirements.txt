@@ -1,0 +1,2 @@
+# Market Intel uses Python stdlib only — no pip packages needed
+# Python 3.8+ required

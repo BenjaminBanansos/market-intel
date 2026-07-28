@@ -1,0 +1,96 @@
+[
+  {
+    "id": "ethereal-linen",
+    "name": "Ethereal Linen Roller Shade",
+    "category": "Roller Shades",
+    "basePrice": 1245,
+    "basePriceMode": "fixed",
+    "description": "A masterclass in light control. Crafted from Belgian flax, this shade creates an atmospheric glow.",
+    "status": "published",
+    "fabrics": [
+      {
+        "id": "nat-flax",
+        "name": "Natural Flax",
+        "hex": "#e5e0d8",
+        "priceModifier": 0
+      },
+      {
+        "id": "sunset",
+        "name": "Sunset Glow",
+        "hex": "#ff9a9e",
+        "priceModifier": 50
+      }
+    ],
+    "constraints": {
+      "minWidth": 400,
+      "maxWidth": 3200,
+      "minHeight": 600,
+      "maxHeight": 4500
+    },
+    "logic": [
+      {
+        "id": "rule-1",
+        "name": "Oversize Surcharge",
+        "condition": "width > 2500",
+        "action": "markup 15%",
+        "status": "active"
+      }
+    ],
+    "mediaAssets": [
+      "/product-lin-sfold.jpg"
+    ]
+  },
+  {
+    "id": "zenith-tower",
+    "name": "Zenith Tower Zebra",
+    "category": "Zebra Shades",
+    "basePrice": 850,
+    "basePriceMode": "perSqM",
+    "description": "Premium industrial zebra shades with specialized architectural fascias.",
+    "status": "published",
+    "fabrics": [
+      {
+        "id": "slate",
+        "name": "Slate Anodized",
+        "hex": "#2b2b2b",
+        "priceModifier": 0
+      }
+    ],
+    "constraints": {
+      "minWidth": 600,
+      "maxWidth": 4000,
+      "minHeight": 800,
+      "maxHeight": 5000
+    }
+  },
+  {
+    "name": "Tokyo LF",
+    "category": "Zebra Blinds",
+    "basePrice": 120,
+    "basePriceMode": "fixed",
+    "description": "",
+    "status": "published",
+    "fabrics": [
+      {
+        "id": "f1",
+        "name": "Standard Linen",
+        "hex": "#f5f5f5",
+        "priceModifier": 0
+      },
+      {
+        "id": "1776930669337",
+        "name": "BARGAIN LIGHT FILTERING FABRIC DUO-GLIDE SHADES\n",
+        "hex": "#0000",
+        "priceModifier": 0
+      }
+    ],
+    "constraints": {
+      "minWidth": 400,
+      "maxWidth": 3000,
+      "minHeight": 400,
+      "maxHeight": 4000
+    },
+    "logic": [],
+    "id": "tokyo-lf"
+  }
+]

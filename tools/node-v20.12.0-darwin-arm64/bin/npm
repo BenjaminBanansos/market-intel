@@ -1,0 +1,2 @@
+#!/bin/sh
+node /Users/benjamin/Desktop/claude/market-intel/tools/node-v20.12.0-darwin-arm64/lib/node_modules/npm/bin/npm-cli.js "$@"
