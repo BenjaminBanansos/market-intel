@@ -1,7 +1,8 @@
 export interface FabricSwatch {
   id: string;
   name: string;
-  hex: string;
+  hex?: string;
+  imageUrl?: string;
   priceModifier: number;
 }
 
@@ -39,6 +40,13 @@ export interface Product {
   mediaAssets?: string[];
   imageUrl?: string;
   addons?: Addon[];
+  
+  // Advanced Product Metadata
+  transparency?: string;
+  material?: string;
+  weight?: string;
+  repeatSize?: string;
+  
   status: 'published' | 'draft';
 }
 

@@ -91,10 +91,13 @@ export default async function Home() {
           gap: '40px' 
         }}>
           {displayProducts.map(product => (
-            <Link key={product.id} href={`/product/${product.id}`} style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
+            <Link key={product.category} href={`/categories/${product.category}`} style={{ cursor: 'pointer', textDecoration: 'none', color: 'inherit' }}>
               <div style={{ 
                 height: '400px', 
-                backgroundColor: product.fabrics[0]?.hex || '#eee', 
+                backgroundColor: product.fabrics?.[0]?.hex || '#eee', 
+                backgroundImage: product.imageUrl ? `url(${product.imageUrl})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 marginBottom: '1.5rem',
                 transition: 'var(--transition-smooth)',
                 position: 'relative'
@@ -103,8 +106,8 @@ export default async function Home() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.25rem' }}>{product.category}</h3>
-                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>From ${product.basePrice}</p>
+                  <h3 style={{ fontSize: '1.25rem', textTransform: 'capitalize' }}>{product.category} Shades</h3>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Explore Collection</p>
                 </div>
                 <div style={{ fontSize: '1.2rem' }}>→</div>
               </div>

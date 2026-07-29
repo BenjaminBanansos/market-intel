@@ -1,0 +1,392 @@
+[
+  {
+    "family": "G31 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "162G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-G31-001DS-TR-G31-002DS-TR-G31-003",
+        "name": "DS-TR-G31-001 DS-TR-G31-002 DS-TR-G31-003",
+        "image": "/assets/products/zebra/DS-TR-G31-001DS-TR-G31-002DS-TR-G31-003.jpeg"
+      },
+      {
+        "id": "DS-TR-G31-004DS-TR-G31-005",
+        "name": "DS-TR-G31-004 DS-TR-G31-005",
+        "image": "/assets/products/zebra/DS-TR-G31-004DS-TR-G31-005.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "B1  -  TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "120G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-B101DS-TR-B104DS-TR-B105",
+        "name": "DS-TR-B101 DS-TR-B104 DS-TR-B105",
+        "image": "/assets/products/zebra/DS-TR-B101DS-TR-B104DS-TR-B105.jpeg"
+      },
+      {
+        "id": "DS-TR-B106DS-TR-B107",
+        "name": "DS-TR-B106 DS-TR-B107",
+        "image": "/assets/products/zebra/DS-TR-B106DS-TR-B107.jpeg"
+      },
+      {
+        "id": "DS-TR-B119DS-TR-B123",
+        "name": "DS-TR-B119 DS-TR-B123",
+        "image": "/assets/products/zebra/DS-TR-B119DS-TR-B123.jpeg"
+      },
+      {
+        "id": "DS-TR-B112DS-TR-B114DS-TR-B109",
+        "name": "DS-TR-B112 DS-TR-B114 DS-TR-B109",
+        "image": "/assets/products/zebra/DS-TR-B112DS-TR-B114DS-TR-B109.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "BL2 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "140G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-BL201DS-TR-BL202",
+        "name": "DS-TR-BL201 DS-TR-BL202",
+        "image": "/assets/products/zebra/DS-TR-BL201DS-TR-BL202.jpeg"
+      },
+      {
+        "id": "DS-TR-BL203DS-TR-BL206DS-TR-BL207",
+        "name": "DS-TR-BL203 DS-TR-BL206 DS-TR-BL207",
+        "image": "/assets/products/zebra/DS-TR-BL203DS-TR-BL206DS-TR-BL207.jpeg"
+      },
+      {
+        "id": "DS-TR-BL208DS-TR-BL210",
+        "name": "DS-TR-BL208 DS-TR-BL210",
+        "image": "/assets/products/zebra/DS-TR-BL208DS-TR-BL210.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "BL52 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "173G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-BL5201DS-TR-BL5202DS-TR-BL5203",
+        "name": "DS-TR-BL5201 DS-TR-BL5202 DS-TR-BL5203",
+        "image": "/assets/products/zebra/DS-TR-BL5201DS-TR-BL5202DS-TR-BL5203.jpeg"
+      },
+      {
+        "id": "DS-TR-BL5204DS-TR-BL5205DS-TR-BL5206",
+        "name": "DS-TR-BL5204 DS-TR-BL5205 DS-TR-BL5206",
+        "image": "/assets/products/zebra/DS-TR-BL5204DS-TR-BL5205DS-TR-BL5206.jpeg"
+      },
+      {
+        "id": "DS-TR-BL5207DS-TR-BL5208DS-TR-BL5209",
+        "name": "DS-TR-BL5207 DS-TR-BL5208 DS-TR-BL5209",
+        "image": "/assets/products/zebra/DS-TR-BL5207DS-TR-BL5208DS-TR-BL5209.jpeg"
+      },
+      {
+        "id": "DS-TR-BL5210DS-TR-BL5211",
+        "name": "DS-TR-BL5210 DS-TR-BL5211",
+        "image": "/assets/products/zebra/DS-TR-BL5210DS-TR-BL5211.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "BL25 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "157.5G/㎡ ±5%    WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-BL2501DS-TR-BL2502DS-TR-BL2503",
+        "name": "DS-TR-BL2501 DS-TR-BL2502 DS-TR-BL2503",
+        "image": "/assets/products/zebra/DS-TR-BL2501DS-TR-BL2502DS-TR-BL2503.jpeg"
+      },
+      {
+        "id": "DS-TR-BL2504DS-TR-BL2505",
+        "name": "DS-TR-BL2504 DS-TR-BL2505",
+        "image": "/assets/products/zebra/DS-TR-BL2504DS-TR-BL2505.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "BL51  -  TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "137G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-BL5101DS-TR-BL5102DS-TR-BL5103",
+        "name": "DS-TR-BL5101 DS-TR-BL5102 DS-TR-BL5103",
+        "image": "/assets/products/zebra/DS-TR-BL5101DS-TR-BL5102DS-TR-BL5103.jpeg"
+      },
+      {
+        "id": "DS-TR-BL5104DS-TR-BL5105",
+        "name": "DS-TR-BL5104 DS-TR-BL5105",
+        "image": "/assets/products/zebra/DS-TR-BL5104DS-TR-BL5105.jpeg"
+      },
+      {
+        "id": "DS-TR-BL5109",
+        "name": "DS-TR-BL5109",
+        "image": "/assets/products/zebra/DS-TR-BL5109.jpeg"
+      },
+      {
+        "id": "DS-TR-BL5106",
+        "name": "DS-TR-BL5106",
+        "image": "/assets/products/zebra/DS-TR-BL5106.jpeg"
+      },
+      {
+        "id": "DS-TR-BL5107DS-TR-BL5108",
+        "name": "DS-TR-BL5107 DS-TR-BL5108",
+        "image": "/assets/products/zebra/DS-TR-BL5107DS-TR-BL5108.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "DL22032 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "100G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-DL22032-0001DS-TR-DL22032-0002DS-TR-DL22032-0003",
+        "name": "DS-TR-DL22032-0001 DS-TR-DL22032-0002 DS-TR-DL22032-0003",
+        "image": "/assets/products/zebra/DS-TR-DL22032-0001DS-TR-DL22032-0002DS-TR-DL22032-0003.jpeg"
+      },
+      {
+        "id": "DS-TR-DL22032-0004DS-TR-DL22032-0005",
+        "name": "DS-TR-DL22032-0004 DS-TR-DL22032-0005",
+        "image": "/assets/products/zebra/DS-TR-DL22032-0004DS-TR-DL22032-0005.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "G32 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "161G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-G32-001DS-TR-G32-002",
+        "name": "DS-TR-G32-001 DS-TR-G32-002",
+        "image": "/assets/products/zebra/DS-TR-G32-001DS-TR-G32-002.jpeg"
+      },
+      {
+        "id": "DS-TR-G32-003DS-TR-G32-004",
+        "name": "DS-TR-G32-003 DS-TR-G32-004",
+        "image": "/assets/products/zebra/DS-TR-G32-003DS-TR-G32-004.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "G37 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "158G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-G37-001DS-TR-G37-002DS-TR-G37-003",
+        "name": "DS-TR-G37-001 DS-TR-G37-002 DS-TR-G37-003",
+        "image": "/assets/products/zebra/DS-TR-G37-001DS-TR-G37-002DS-TR-G37-003.jpeg"
+      },
+      {
+        "id": "DS-TR-G37-004DS-TR-G37-005",
+        "name": "DS-TR-G37-004 DS-TR-G37-005",
+        "image": "/assets/products/zebra/DS-TR-G37-004DS-TR-G37-005.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "G38 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "155G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-G38-001DS-TR-G38-002DS-TR-G38-003",
+        "name": "DS-TR-G38-001 DS-TR-G38-002 DS-TR-G38-003",
+        "image": "/assets/products/zebra/DS-TR-G38-001DS-TR-G38-002DS-TR-G38-003.jpeg"
+      },
+      {
+        "id": "DS-TR-G38-004DS-TR-G38-005",
+        "name": "DS-TR-G38-004 DS-TR-G38-005",
+        "image": "/assets/products/zebra/DS-TR-G38-004DS-TR-G38-005.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "BE5 -  TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "175G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-BE501DS-TR-BE502DS-TR-BE503",
+        "name": "DS-TR-BE501 DS-TR-BE502 DS-TR-BE503",
+        "image": "/assets/products/zebra/DS-TR-BE501DS-TR-BE502DS-TR-BE503.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "BE6 -  TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "175G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-BE601DS-TR-BE602",
+        "name": "DS-TR-BE601 DS-TR-BE602",
+        "image": "/assets/products/zebra/DS-TR-BE601DS-TR-BE602.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "BE7 -  TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "175G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-BE701DS-TR-BE702",
+        "name": "DS-TR-BE701 DS-TR-BE702",
+        "image": "/assets/products/zebra/DS-TR-BE701DS-TR-BE702.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "DL20025 -  TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "175G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-DL20025-0001DS-TR-DL20025-0002",
+        "name": "DS-TR-DL20025-0001 DS-TR-DL20025-0002",
+        "image": "/assets/products/zebra/DS-TR-DL20025-0001DS-TR-DL20025-0002.jpeg"
+      },
+      {
+        "id": "DS-TR-DL20025-0003DS-TR-DL20025-0004",
+        "name": "DS-TR-DL20025-0003 DS-TR-DL20025-0004",
+        "image": "/assets/products/zebra/DS-TR-DL20025-0003DS-TR-DL20025-0004.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "DL22030 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "235G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-DL22030-0001DS-TR-DL22030-0002DS-TR-DL22030-0003",
+        "name": "DS-TR-DL22030-0001 DS-TR-DL22030-0002 DS-TR-DL22030-0003",
+        "image": "/assets/products/zebra/DS-TR-DL22030-0001DS-TR-DL22030-0002DS-TR-DL22030-0003.jpeg"
+      },
+      {
+        "id": "DS-TR-DL22030-0004DS-TR-DL22030-0005",
+        "name": "DS-TR-DL22030-0004 DS-TR-DL22030-0005",
+        "image": "/assets/products/zebra/DS-TR-DL22030-0004DS-TR-DL22030-0005.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "ZB -  TRANSLUCENT",
+    "composition": "40% POLYESTER -60% PVC COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "373G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-ZB00-693DS-TR-ZB00-694",
+        "name": "DS-TR-ZB00-693 DS-TR-ZB00-694",
+        "image": "/assets/products/zebra/DS-TR-ZB00-693DS-TR-ZB00-694.jpeg"
+      },
+      {
+        "id": "DS-TR-ZB00-695DS-TR-ZB00-700",
+        "name": "DS-TR-ZB00-695 DS-TR-ZB00-700",
+        "image": "/assets/products/zebra/DS-TR-ZB00-695DS-TR-ZB00-700.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "HYBZ9-BK1 - BLACKOUT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Blackout",
+    "weight": "291G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-BO-HYBZ901DS-BO-HYBZ903DS-BO-HYBZ905",
+        "name": "DS-BO-HYBZ901 DS-BO-HYBZ903 DS-BO-HYBZ905",
+        "image": "/assets/products/zebra/DS-BO-HYBZ901DS-BO-HYBZ903DS-BO-HYBZ905.jpeg"
+      },
+      {
+        "id": "DS-BO-HYBZ907DS-BO-HYBZ909",
+        "name": "DS-BO-HYBZ907 DS-BO-HYBZ909",
+        "image": "/assets/products/zebra/DS-BO-HYBZ907DS-BO-HYBZ909.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "BK2 -  BLACKOUT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Blackout",
+    "weight": "263G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-BO-BK201DS-BO-BK202DS-BO-BK203",
+        "name": "DS-BO-BK201 DS-BO-BK202 DS-BO-BK203",
+        "image": "/assets/products/zebra/DS-BO-BK201DS-BO-BK202DS-BO-BK203.jpeg"
+      },
+      {
+        "id": "DS-BO-BK204DS-BO-BK205",
+        "name": "DS-BO-BK204 DS-BO-BK205",
+        "image": "/assets/products/zebra/DS-BO-BK204DS-BO-BK205.jpeg"
+      },
+      {
+        "id": "DS-BO-BK206DS-BO-BK207DS-BO-BK208",
+        "name": "DS-BO-BK206 DS-BO-BK207 DS-BO-BK208",
+        "image": "/assets/products/zebra/DS-BO-BK206DS-BO-BK207DS-BO-BK208.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "BK5 -  BLACKOUT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Blackout",
+    "weight": "220G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-BO-BK501DS-BO-BK502",
+        "name": "DS-BO-BK501 DS-BO-BK502",
+        "image": "/assets/products/zebra/DS-BO-BK501DS-BO-BK502.jpeg"
+      },
+      {
+        "id": "DS-BO-BK503DS-BO-BK504",
+        "name": "DS-BO-BK503 DS-BO-BK504",
+        "image": "/assets/products/zebra/DS-BO-BK503DS-BO-BK504.jpeg"
+      }
+    ]
+  },
+  {
+    "family": "G35 - TRANSLUCENT",
+    "composition": "100% POLYESTER COMPOSITION",
+    "transparency": "Translucent",
+    "weight": "247G/㎡ ±5%   WEIGHT/㎡",
+    "swatches": [
+      {
+        "id": "DS-TR-G35-001DS-TR-G35-002",
+        "name": "DS-TR-G35-001 DS-TR-G35-002",
+        "image": "/assets/products/zebra/DS-TR-G35-001DS-TR-G35-002.jpeg"
+      },
+      {
+        "id": "DS-TR-G35-003DS-TR-G35-004",
+        "name": "DS-TR-G35-003 DS-TR-G35-004",
+        "image": "/assets/products/zebra/DS-TR-G35-003DS-TR-G35-004.jpeg"
+      }
+    ]
+  }
+]
