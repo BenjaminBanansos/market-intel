@@ -11,6 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: 'Dashboard', path: '/admin', icon: '📊' },
     { label: 'Categories', path: '/admin/categories', icon: '📁' },
     { label: 'Products', path: '/admin/products', icon: '📦' },
+    { label: 'Users', path: '/admin/users', icon: '👥' },
     { label: 'Customization', path: '/admin/customization', icon: '⚙️' },
     { label: 'Settings', path: '/admin/settings', icon: '🔧' },
   ];
@@ -69,12 +70,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           ))}
         </nav>
 
-        <div style={{ borderTop: '1px solid #eee', paddingTop: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#eee' }}></div>
-          <div>
-            <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Benjamin Admin</div>
-            <div style={{ fontSize: '0.7rem', color: '#aaa' }}>Super Admin</div>
+        <div style={{ borderTop: '1px solid #eee', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#eee' }}></div>
+            <div>
+              <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>Benjamin Admin</div>
+              <div style={{ fontSize: '0.7rem', color: '#aaa' }}>Super Admin</div>
+            </div>
           </div>
+          
+          <button 
+            onClick={async () => {
+              await fetch('/api/auth/logout', { method: 'POST' });
+              window.location.href = '/login';
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '10px 16px',
+              backgroundColor: 'transparent',
+              border: 'none',
+              color: '#cf1322',
+              fontSize: '0.9rem',
+              fontWeight: 500,
+              cursor: 'pointer',
+              borderRadius: '8px',
+              transition: 'background-color 0.2s',
+              textAlign: 'left'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#fff1f0'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+          >
+            <span style={{ fontSize: '1.1rem' }}>🚪</span>
+            Sign Out
+          </button>
         </div>
       </aside>
 

@@ -8,6 +8,7 @@ import {
   saveCategory as saveCatRaw
 } from './storage';
 import { Product, Category } from './products';
+import { getUsers as getUsersRaw, saveUser, deleteUser as deleteUserRaw, User, hashPassword } from './users';
 import { revalidatePath } from 'next/cache';
 
 export async function getProducts() {
@@ -42,6 +43,34 @@ export async function saveCategory(category: Category) {
   if (success) {
     revalidatePath('/admin/categories');
     revalidatePath('/admin');
+  }
+  return success;
+}
+
+export async function getUsersList() {
+  return await getUsersRaw();
+}
+
+export async function createNewUser(username: string, plainPassword: string, role: 'admin' | 'user') {
+  const newUser: User = {
+    id: Date.now().toString(),
+    username,
+    passwordHash: hashPassword(plainPassword),
+    role,
+    createdAt: new Date().toISOString()
+  };
+  
+  const success = await saveUser(newUser);
+  if (success) {
+    revalidatePath('/admin/users');
+  }
+  return success;
+}
+
+export async function removeUser(id: string) {
+  const success = await deleteUserRaw(id);
+  if (success) {
+    revalidatePath('/admin/users');
   }
   return success;
 }
